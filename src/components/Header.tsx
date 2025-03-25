@@ -1,70 +1,80 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Bars3Icon } from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon, UserCircleIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
+import { useAuth } from '../auth/AuthContext';
 
 const Header: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { cartCount, userName } = useAuth();
 
   return (
-    <header className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-        {/* Логотип */}
-        <Link to="/" className="text-xl font-bold text-gray-800">
-          Kron2.0
-        </Link>
+    <header className="bg-white shadow-md">
+      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <Link to="/" className="text-2xl font-bold text-gray-800">Kron2.0</Link>
+
         {/* Десктопное меню */}
-        <nav className="hidden md:flex space-x-4">
-          {['/', '/catalog', '/cart', '/about', '/contact'].map((path) => (
-            <NavLink
-              key={path}
-              to={path}
-              className={({ isActive }) =>
-                isActive
-                  ? 'text-gray-900 font-semibold'
-                  : 'text-gray-600 hover:text-gray-900'
-              }
-            >
-              {path === '/' ? 'Home' : path.substring(1).charAt(0).toUpperCase() + path.substring(2)}
-            </NavLink>
-          ))}
+        <nav className="hidden md:flex space-x-6">
+          <NavLink to="/" className={({ isActive }) => isActive ? 'text-gray-900 font-semibold' : 'text-gray-600 hover:text-gray-900'}>Главная</NavLink>
+          <NavLink to="/catalog" className={({ isActive }) => isActive ? 'text-gray-900 font-semibold' : 'text-gray-600 hover:text-gray-900'}>Каталог</NavLink>
+          <NavLink to="/about" className={({ isActive }) => isActive ? 'text-gray-900 font-semibold' : 'text-gray-600 hover:text-gray-900'}>О нас</NavLink>
+          <NavLink to="/contact" className={({ isActive }) => isActive ? 'text-gray-900 font-semibold' : 'text-gray-600 hover:text-gray-900'}>Контакты</NavLink>
         </nav>
-        {/* Кнопка для мобильного меню */}
-        <div className="md:hidden">
+
+        {/* Иконки корзины и аккаунта + бургер */}
+        <div className="flex items-center space-x-4">
+          <Link to="/cart" className="relative text-gray-600 hover:text-gray-900">
+            <ShoppingCartIcon className="h-6 w-6" />
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full px-1">
+                {cartCount}
+              </span>
+            )}
+          </Link>
+
+		  {userName ? (
+  <Link
+    to="/profile"
+    className="inline-flex items-center text-gray-700 hover:text-gray-900"
+  >
+    <UserCircleIcon className="h-6 w-6 mr-1" />
+    {userName}
+  </Link>
+) : (
+  <Link
+    to="/login"
+    className="text-gray-600 hover:text-gray-900"
+  >
+    <UserCircleIcon className="h-6 w-6" />
+  </Link>
+)}
+
+
           <button
-            onClick={() => setMobileMenuOpen(true)}
-            className="text-gray-600 hover:text-gray-900 focus:outline-none"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden text-gray-600 hover:text-gray-900 focus:outline-none"
           >
-            <Bars3Icon className="h-6 w-6" />
+            {mobileMenuOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
           </button>
         </div>
       </div>
+
       {/* Мобильное меню */}
       {mobileMenuOpen && (
-        <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1">
-            {['/', '/catalog', '/cart', '/about', '/contact'].map((path) => (
+        <div className="md:hidden bg-white shadow-md">
+          <nav className="px-4 py-2 space-y-2">
+            {['/', '/catalog', '/about', '/contact'].map(path => (
               <NavLink
                 key={path}
                 to={path}
                 onClick={() => setMobileMenuOpen(false)}
                 className={({ isActive }) =>
-                  isActive
-                    ? 'block text-gray-900 font-semibold'
-                    : 'block text-gray-600 hover:text-gray-900'
+                  isActive ? 'block text-gray-900 font-semibold' : 'block text-gray-600 hover:text-gray-900'
                 }
               >
-                {path === '/' ? 'Home' : path.substring(1).charAt(0).toUpperCase() + path.substring(2)}
+                {{ '/': 'Главная', '/catalog': 'Каталог', '/about': 'О нас', '/contact': 'Контакты' }[path]}
               </NavLink>
             ))}
-          </div>
-          <div className="px-2 pb-3">
-            <button
-              onClick={() => setMobileMenuOpen(false)}
-              className="block w-full text-left text-gray-600 hover:text-gray-900"
-            >
-              Close Menu
-            </button>
-          </div>
+          </nav>
         </div>
       )}
     </header>
